@@ -1,0 +1,32 @@
+---
+
+- name: extract artifact
+  become: yes
+  unarchive:
+    src: files/artifact.tar.gz
+    dest: .
+
+- name: "Installing Node Dependencies"
+  become: yes
+  shell: |
+    cd /home/ubuntu
+    sudo npm install
+
+- name: "Executing Node app with PM2"
+  become: yes
+  shell: |
+    cd /home/ubuntu/dist
+    sudo pm2 stop default
+    sudo pm2 start main.js
+
+  register: execute_node
+
+- name: print message
+  debug:
+    msg: "{{ execute_node.stdout_lines }}"
+
+- name: "Configure pm2 to start as service"
+  become: yes
+  shell: |
+    su -c "env PATH=$PATH:/usr/local/bin pm2 startup systemd -u ubuntu --hp /home/ubuntu"
+    sudo pm2 save
