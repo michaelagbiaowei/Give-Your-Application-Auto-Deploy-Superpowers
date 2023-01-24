@@ -268,7 +268,7 @@ jobs:
             --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
 
       - run:
-          name: Ensure backend infrastructure exist
+          name: Ensure backend infrastructure exist # cloudformation
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
