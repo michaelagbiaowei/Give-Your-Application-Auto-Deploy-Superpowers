@@ -387,108 +387,108 @@ jobs:
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --output text)
 
-            echo "API_URL=http://$BACKEND_PUBLIC_IP:3030" >> frontend/.env
+            echo "API_URL=http://$BACKEND_PUBLIC_IP:3030" > frontend/.env
             cat frontend/.env
 
-      - run:
-          name: Deploy frontend objects
-          command: |
-            cd frontend
-            npm run build
-            # tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+  #     - run:
+  #         name: Deploy frontend objects
+  #         command: |
+  #           cd frontend
+  #           npm run build
+  #           # tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+  #           aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
 
-      - destroy-environment
-      - revert-migrations
-      - notify_on_failure
+  #     - destroy-environment
+  #     - revert-migrations
+  #     - notify_on_failure
 
-  deploy-backend:
-    docker:
-      - image: cimg/python:3.10
-    steps:
-      - checkout
-      - install_awscli
-      - install_nodejs
-      - install_ansible
-      - add_ssh_keys:
-          fingerprints:
-            - "15:71:24:06:04:09:fb:98:a5:85:17:31:e3:40:8b:03"
+  # deploy-backend:
+  #   docker:
+  #     - image: cimg/python:3.10
+  #   steps:
+  #     - checkout
+  #     - install_awscli
+  #     - install_nodejs
+  #     - install_ansible
+  #     - add_ssh_keys:
+  #         fingerprints:
+  #           - "15:71:24:06:04:09:fb:98:a5:85:17:31:e3:40:8b:03"
 
-      - attach_workspace:
-          at: ~/
-      - restore_cache:
-          keys: [backend-build]
+  #     - attach_workspace:
+  #         at: ~/
+  #     - restore_cache:
+  #         keys: [backend-build]
 
-      - run:
-          name: Deploy backend
-          command: |
-            cd backend
-            npm install --legacy-peer-deps
-            npm run build
-            cd ..
-            tar -C backend -czvf artifact.tar.gz .
-            mkdir -p ~/project/.circleci/ansible/roles/deploy/files/
-            mv artifact.tar.gz .circleci/ansible/roles/deploy/files/artifact.tar.gz
-            cd .circleci/ansible
-            echo "Contents of the inventory.txt file is ------$(cat inventory.txt)"
-            ansible-playbook -i inventory.txt deploy-backend.yml
+  #     - run:
+  #         name: Deploy backend
+  #         command: |
+  #           cd backend
+  #           npm install --legacy-peer-deps
+  #           npm run build
+  #           cd ..
+  #           tar -C backend -czvf artifact.tar.gz .
+  #           mkdir -p ~/project/.circleci/ansible/roles/deploy/files/
+  #           mv artifact.tar.gz .circleci/ansible/roles/deploy/files/artifact.tar.gz
+  #           cd .circleci/ansible
+  #           echo "Contents of the inventory.txt file is ------$(cat inventory.txt)"
+  #           ansible-playbook -i inventory.txt deploy-backend.yml
 
-      - destroy-environment
-      - revert-migrations
-      - notify_on_failure
+  #     - destroy-environment
+  #     - revert-migrations
+  #     - notify_on_failure
 
-  smoke-test:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - checkout
-      - install_awscli
-      - install_nodejs
+  # smoke-test:
+  #   docker:
+  #     - image: cimg/base:stable
+  #   steps:
+  #     - checkout
+  #     - install_awscli
+  #     - install_nodejs
 
-      - run:
-          name: Backend smoke test.
-          command: |
-            BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
-              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --output text)
+  #     - run:
+  #         name: Backend smoke test.
+  #         command: |
+  #           BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
+  #             --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+  #             --query 'Reservations[*].Instances[*].PublicIpAddress' \
+  #             --output text)
 
-            export API_URL=http://${BACKEND_PUBLIC_IP}:3030
-            if curl -s $API_URL/api/status | grep "ok"
-            then
-              exit 0
-            else
-              exit 1
-            fi
-      - run:
-          name: Frontend smoke test.
-          command: |
-            FRONTEND_WEBSITE=http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.${AWS_DEFAULT_REGION}.amazonaws.com
-            if curl -s $FRONTEND_WEBSITE | grep "Welcome"
-            then
-              # This is the intentional error, if "Welcome" is indeed in the response this step will exit with exit code 1
-              exit 1
-            else
-              exit 2
-            fi
-      - destroy-environment
-      - revert-migrations
-      - notify_on_failure
+  #           export API_URL=http://${BACKEND_PUBLIC_IP}:3030
+  #           if curl -s $API_URL/api/status | grep "ok"
+  #           then
+  #             exit 0
+  #           else
+  #             exit 1
+  #           fi
+  #     - run:
+  #         name: Frontend smoke test.
+  #         command: |
+  #           FRONTEND_WEBSITE=http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.${AWS_DEFAULT_REGION}.amazonaws.com
+  #           if curl -s $FRONTEND_WEBSITE | grep "Welcome"
+  #           then
+  #             # This is the intentional error, if "Welcome" is indeed in the response this step will exit with exit code 1
+  #             exit 1
+  #           else
+  #             exit 2
+  #           fi
+  #     - destroy-environment
+  #     - revert-migrations
+  #     - notify_on_failure
 
-    # cloudfront-update:
-    #   docker:
-    #     # Docker image here that supports AWS CLI
-    #   steps:
-    #     # Checkout code from git
-    #     - run:
-    #         name: Install dependencies
-    #         command: |
-    #           # your code here
-    #     - run:
-    #         name: Update cloudfront distribution
-    #         command: |
-    #           # your code here
-    # Here's where you will add some code to rollback on failure
+  # cloudfront-update:
+  #   docker:
+  #     # Docker image here that supports AWS CLI
+  #   steps:
+  #     # Checkout code from git
+  #     - run:
+  #         name: Install dependencies
+  #         command: |
+  #           # your code here
+  #     - run:
+  #         name: Update cloudfront distribution
+  #         command: |
+  #           # your code here
+  # Here's where you will add some code to rollback on failure
 
   # cleanup:
   #   docker:
