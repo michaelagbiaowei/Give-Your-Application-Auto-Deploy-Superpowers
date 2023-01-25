@@ -445,15 +445,17 @@ jobs:
 
   smoke-test:
     docker:
-      - image: cimg/base:stable
+      # - image: cimg/base:stable
+      - image: cimg/node:16.10
     steps:
       - checkout
       - install_awscli
-      - install_nodejs
+      # - install_nodejs
 
       - run:
           name: Backend smoke test.
           command: |
+            sudo apt install curl -y
             BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
               --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
@@ -461,13 +463,14 @@ jobs:
 
             export API_URL="http://${BACKEND_PUBLIC_IP}:3030"
             echo $API_URL
-            if curl --connect-timeout 5 "${API_URL}/api/status" | grep "ok"; then exit 0; else exit 1; fi
+            if curl --connect-timeout 5 "${API_URL}/api/status" -v | grep "ok"; then exit 0; else exit 1; fi
 
       - run:
           name: Frontend smoke test.
           command: |
+            sudo apt install curl -y
             FRONTEND_WEBSITE=http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.${AWS_DEFAULT_REGION}.amazonaws.com
-            if curl -s $FRONTEND_WEBSITE | grep "Welcome"
+            if curl -s $FRONTEND_WEBSITE -v | grep "Welcome"
             then
               # This is the intentional error, if "Welcome" is indeed in the response this step will exit with exit code 1
               exit 1
