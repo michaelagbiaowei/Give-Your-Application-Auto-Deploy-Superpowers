@@ -294,6 +294,8 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-deps
+
+      - destroy-environment
       - notify_on_failure
 
   configure-infrastructure:
