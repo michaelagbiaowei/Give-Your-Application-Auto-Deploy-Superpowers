@@ -268,7 +268,7 @@ jobs:
             --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
 
       - run:
-          name: Ensure backend infrastructure exist # cloudformation
+          name: Ensure backend infrastructure exist
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
@@ -445,12 +445,11 @@ jobs:
 
   smoke-test:
     docker:
-      # - image: cimg/base:stable
-      - image: cimg/node:16.10
+      - image: cimg/base:stable
     steps:
       - checkout
       - install_awscli
-      # - install_nodejs
+      - install_nodejs
 
       - run:
           name: Backend smoke test.
