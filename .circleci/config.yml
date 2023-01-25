@@ -387,7 +387,8 @@ jobs:
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --output text)
 
-            touch frontend/.env
+            export API_URL="http://${BACKEND_PUBLIC_IP}:3030"
+            echo "API_URL = ${API_URL}"
             echo "API_URL=http://${BACKEND_PUBLIC_IP}:3030" >> frontend/.env
             cat frontend/.env
 
@@ -451,21 +452,6 @@ jobs:
       - install_nodejs
 
       - run:
-          name: Frontend smoke test.
-          command: |
-            FRONTEND_WEBSITE=http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.${AWS_DEFAULT_REGION}.amazonaws.com
-            if curl -s $FRONTEND_WEBSITE | grep "Welcome"
-            then
-              # This is the intentional error, if "Welcome" is indeed in the response this step will exit with exit code 1
-              exit 0
-            else
-              exit 1
-            fi
-      - destroy-environment
-      - revert-migrations
-      - notify_on_failure
-      
-      - run:
           name: Backend smoke test.
           command: |
             BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
@@ -473,13 +459,24 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text)
 
-            export API_URL=http://${BACKEND_PUBLIC_IP}:3030
-            if curl -s $API_URL/api/status | grep "ok"
+            export API_URL="http://${BACKEND_PUBLIC_IP}:3030"
+            echo $API_URL
+            if curl --connect-timeout 5 "${API_URL}/api/status" | grep "ok"; then exit 0; else exit 1; fi
+
+      - run:
+          name: Frontend smoke test.
+          command: |
+            FRONTEND_WEBSITE=http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.${AWS_DEFAULT_REGION}.amazonaws.com
+            if curl -s $FRONTEND_WEBSITE | grep "Welcome"
             then
-              exit 0
-            else
+              # This is the intentional error, if "Welcome" is indeed in the response this step will exit with exit code 1
               exit 1
+            else
+              exit 2
             fi
+      # - destroy-environment
+      # - revert-migrations
+      - notify_on_failure
 
   # cloudfront-update:
   #   docker:
