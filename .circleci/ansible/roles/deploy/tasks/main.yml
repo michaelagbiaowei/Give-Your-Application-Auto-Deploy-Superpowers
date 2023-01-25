@@ -17,7 +17,7 @@
   shell: |
     cd /home/ubuntu/dist
     sudo pm2 stop default
-    sudo pm2 start main.js
+    sudo pm2 start npm -- start
 
   register: execute_node
 

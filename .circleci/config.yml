@@ -424,6 +424,10 @@ jobs:
       - run:
           name: Deploy backend
           command: |
+            export TYPEORM_MIGRATIONS_DIR=./migrations
+            export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
+            export TYPEORM_MIGRATIONS=./migrations/*.ts
+
             cd backend
             npm install --legacy-peer-deps
             npm run build
@@ -470,8 +474,8 @@ jobs:
             else
               exit 2
             fi
-      # - destroy-environment
-      # - revert-migrations
+      - destroy-environment
+      - revert-migrations
       - notify_on_failure
 
   # cloudfront-update:
