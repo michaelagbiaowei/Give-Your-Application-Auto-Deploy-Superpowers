@@ -318,12 +318,11 @@ jobs:
             cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
 
-      # In case any failure occurs, add rollback command
-      - destroy-environment
-
       - save_cache:
           paths: [backend/node_modules]
           key: backend-deps
+          
+      - destroy-environment
       - notify_on_failure
 
   run-migrations:
@@ -354,12 +353,12 @@ jobs:
               echo "No migrations are pending"
             fi
 
-      - destroy-environment
-      - revert-migrations
-
       - save_cache:
           paths: [backend/node_modules]
           key: backend-deps
+          
+      - destroy-environment
+      - revert-migrations
       - notify_on_failure
 
   deploy-frontend:
@@ -476,8 +475,8 @@ jobs:
             else
               exit 2
             fi
-      # - destroy-environment
-      # - revert-migrations
+      - destroy-environment
+      - revert-migrations
       - notify_on_failure
 
   # cloudfront-update:
