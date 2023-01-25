@@ -321,7 +321,7 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-deps
-          
+
       - destroy-environment
       - notify_on_failure
 
@@ -356,7 +356,7 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-deps
-          
+
       - destroy-environment
       - revert-migrations
       - notify_on_failure
