@@ -470,8 +470,8 @@ jobs:
             else
               exit 2
             fi
-      - destroy-environment
-      - revert-migrations
+      # - destroy-environment
+      # - revert-migrations
       - notify_on_failure
 
   # cloudfront-update:
