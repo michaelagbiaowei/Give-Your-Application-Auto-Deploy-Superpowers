@@ -256,7 +256,7 @@ jobs:
       - image: cimg/python:3.10
     steps:
       - checkout
-      - install_awscli
+      # - install_awscli
 
       - run:
           name: Ensure frontend infrastructure exist
@@ -386,6 +386,8 @@ jobs:
             --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --output text)
+
+            touch frontend/.env
 
             echo "API_URL=http://$BACKEND_PUBLIC_IP:3030" > frontend/.env
             cat frontend/.env
