@@ -584,7 +584,8 @@ workflows:
           requires: [build-frontend]
           filters:
             branches:
-              only: [Cloud-DevOps]
+              only: [Cloud-DevOps] #
+
 
       # # - deploy-infrastructure:
       # #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
