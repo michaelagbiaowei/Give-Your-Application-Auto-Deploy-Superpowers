@@ -86,6 +86,7 @@ jobs:
   build-frontend:
     docker:
       - image: cimg/node:13.8.0
+
     steps:
       - checkout
       - restore_cache:
@@ -551,24 +552,40 @@ jobs:
 workflows:
   udapeople_app_workflow:
     jobs:
-      - build-frontend
-      - build-backend
+      - build-frontend:
+          filters:
+            branches:
+              only: [Cloud-DevOps]
+
+      - build-backend:
+          filters:
+            branches:
+              only: [Cloud-DevOps]
+
       - test-frontend:
           requires: [build-frontend]
-          filter:
-            branches: [Cloud-DevOps]
+          filters:
+            branches:
+              only: [Cloud-DevOps]
+
       - test-backend:
           requires: [build-backend]
-          filter:
-            branches: [Cloud-DevOps]
+          filters:
+            branches:
+              only: [Cloud-DevOps]
+
       - scan-backend:
           requires: [build-backend]
-          filter:
-            branches: [Cloud-DevOps]
+          filters:
+            branches:
+              only: [Cloud-DevOps]
+
       - scan-frontend:
           requires: [build-frontend]
-          filter:
-            branches: [Cloud-DevOps]
+          filters:
+            branches:
+              only: [Cloud-DevOps]
+
       # # - deploy-infrastructure:
       # #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       # # - configure-infrastructure:
