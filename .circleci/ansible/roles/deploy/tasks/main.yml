@@ -1,10 +1,14 @@
 ---
-
 - name: extract artifact
   become: yes
   unarchive:
     src: files/artifact.tar.gz
     dest: .
+
+- name: copy node_env file to production
+  template:
+    src: .env.j2
+    dest: /home/ubuntu/.env
 
 - name: "Installing Node Dependencies"
   become: yes
