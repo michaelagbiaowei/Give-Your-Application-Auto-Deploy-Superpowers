@@ -1,9 +1,9 @@
 THIS FILE CONTAINS RELEVANT LINKS FOR THE UDAPEOPLE PROJECT
 
-GITHUB LINK
+GITHUB LINK [URL1]
 https://github.com/michaelagbiaowei/Give-Your-Application-Auto-Deploy-Superpowers
 
-FRONT-END S3 BUCKECT
+FRONT-END S3 BUCKECT [URL02]
 https://udapeople-49ee315.s3.amazonaws.com/index.html
 
 CLOUDFRONT DISTRIBUTION

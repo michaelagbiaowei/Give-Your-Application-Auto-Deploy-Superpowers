@@ -1,36 +1,65 @@
+# ---
+# - name: extract artifact
+#   become: yes
+#   unarchive:
+#     src: files/artifact.tar.gz
+#     dest: .
+
+# - name: copy node_env file to production
+#   template:
+#     src: .env.j2
+#     dest: /home/ubuntu/.env
+
+# - name: "Installing Node Dependencies"
+#   become: yes
+#   shell: |
+#     cd /home/ubuntu
+#     sudo npm install
+
+# - name: "Executing Node app with PM2"
+#   become: yes
+#   shell: |
+#     cd /home/ubuntu/dist
+#     sudo pm2 stop default
+#     sudo pm2 start npm -- start
+
+#   register: execute_node
+
+# - name: print message
+#   debug:
+#     msg: "{{ execute_node.stdout_lines }}"
+
+# - name: "Configure pm2 to start as service"
+#   become: yes
+#   shell: |
+#     su -c "env PATH=$PATH:/usr/local/bin pm2 startup systemd -u ubuntu --hp /home/ubuntu"
+#     sudo pm2 save
+
 ---
-- name: extract artifact
+- name: Update
+  become: yes
+  apt:
+    update_cache: yes
+    cache_valid_time: 86400
+- name: remove unneeded deps
+  become: yes
+  apt:
+    autoremove: yes
+
+- name: "upgrade packages"
+  become: yes
+  apt:
+    upgrade: yes
+
+- name: Unarchive files
   become: yes
   unarchive:
-    src: files/artifact.tar.gz
+    src: "files/artifact.tar.gz"
     dest: .
 
-- name: copy node_env file to production
-  template:
-    src: .env.j2
-    dest: /home/ubuntu/.env
-
-- name: "Installing Node Dependencies"
+- name: "Start application"
   become: yes
   shell: |
-    cd /home/ubuntu
-    sudo npm install
-
-- name: "Executing Node app with PM2"
-  become: yes
-  shell: |
-    cd /home/ubuntu/dist
-    sudo pm2 stop default
-    sudo pm2 start npm -- start
-
-  register: execute_node
-
-- name: print message
-  debug:
-    msg: "{{ execute_node.stdout_lines }}"
-
-- name: "Configure pm2 to start as service"
-  become: yes
-  shell: |
-    su -c "env PATH=$PATH:/usr/local/bin pm2 startup systemd -u ubuntu --hp /home/ubuntu"
-    sudo pm2 save
+    npm install
+    pm2 stop default
+    pm2 start npm -- start
