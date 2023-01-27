@@ -259,17 +259,6 @@ jobs:
       - install_awscli
       - install_ansible
 
-      - run:
-          name: Install dependencies
-          command: |
-            # Your code here
-            yum install -y gcc libffi-devel python3 epel-release && \
-            yum install -y python3-pip && \
-            yum install -y wget && \
-            yum clean all && \
-            yum update -y && \
-            yum install -y tar gzip curl unzip openssh-server openssh-clients && \
-            python3 -m pip install ansible
       - add_ssh_keys:
           fingerprints: ["15:71:24:06:04:09:fb:98:a5:85:17:31:e3:40:8b:03"]
       - attach_workspace:
