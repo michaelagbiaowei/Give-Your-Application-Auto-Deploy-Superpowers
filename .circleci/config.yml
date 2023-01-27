@@ -269,12 +269,6 @@ jobs:
             # Your code here
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
-      - run:
-          name: node_exporter
-          command: |
-            # Your code here
-            cd .circleci/ansible
-            ansible-playbook -i inventory.txt node-exporter.yml
 
       - remove-bucket-contents
       - destroy-environment
