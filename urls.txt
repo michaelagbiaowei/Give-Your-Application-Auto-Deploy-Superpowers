@@ -5,3 +5,13 @@ https://github.com/michaelagbiaowei/Give-Your-Application-Auto-Deploy-Superpower
 
 FRONT-END S3 BUCKECT
 https://udapeople-49ee315.s3.amazonaws.com/index.html
+
+CLOUDFRONT DISTRIBUTION
+https://d23xirr66z0tn4.cloudfront.net
+
+BACKEND APPLICATION URL
+ec2-52-3-76-254.compute-1.amazonaws.com
+
+PROMETHEUS SERVER PUBLIC IP/DNS
+ec2-54-90-3-121.compute-1.amazonaws.com
+
