@@ -285,7 +285,7 @@ jobs:
             # Run and save the migration output
             npm install --no-audit --no-fund
             npm run migrations > migrations_dump.txt
-            # no_output_timeout: 5m
+            cat migrations_dump.txt
       - run:
           name: Send migration results to kvdb
           command: |
@@ -387,21 +387,19 @@ jobs:
           command: |
             # your code here
             apk add --update --no-cache curl aws-cli nodejs npm
-      - run:
-          name: Get backend url
-          command: |
-            # your code here
-            export BACKEND_IP=$(aws ec2 describe-instances \
-            --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-            --query "Reservations[*].Instances[*].PublicDnsName" \
-            --output text)
-            echo "${API_URL}"
-            export API_URL="http://${BACKEND_IP}:3030"
+
       - run:
           name: Backend smoke test.
           command: |
-            # your code here
-            if [[ 'ok' =~ $(curl -s --connect-timeout 5 http://${BACKEND_IP}:3030/api/status | grep -o ok) ]];then return 0 else return 1;fi
+            udo apt install curl -y
+            BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text)
+
+            export API_URL="http://${BACKEND_PUBLIC_IP}:3030"
+            echo $API_URL
+            if curl --connect-timeout 5 "${API_URL}/api/status" -v | grep "ok"; then exit 0; else exit 1; fi
 
       - run:
           name: Frontend smoke test.
@@ -444,11 +442,11 @@ jobs:
 
             echo "${OldWorkflowID}" >> ~/OldWorkflowID.txt
             echo "${OldWorkflowID}"
+
             aws cloudformation deploy \
             --template-file .circleci/files/cloudfront.yml \
-            --stack-name InitialStack \
+            --stack-name udapeople-cloudfront \
             --parameter-overrides WorkflowID=${CIRCLE_WORKFLOW_ID:0:7} \
-            --tags project=udapeople
 
       - revert-migrations
       - remove-bucket-contents
