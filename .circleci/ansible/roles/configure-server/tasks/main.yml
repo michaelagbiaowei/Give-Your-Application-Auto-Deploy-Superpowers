@@ -1,37 +1,17 @@
 ---
-- name: "update apt packages."
-  become: true
-  apt:
-    update_cache: yes
-    cache_valid_time: 86400
+- name: "Install Node.js 13"
+  shell: |
+    # Install Node.js LTS version as our base Node.js version
+    curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+    sudo apt-get install -y nodejs
 
-- name: "upgrade packages"
-  become: true
-  apt:
-    upgrade: yes
+    # Use n version manager to switch to Node.js v13.8.0
+    sudo npm install -g n
+    sudo n 13.8.0
 
-- name: Install the gpg key for nodejs LTS
-  apt_key:
-    url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
-    state: present
-
-- name: Install the nodejs LTS repos
-  become: yes
-  apt_repository:
-    repo: "deb https://deb.nodesource.com/node_{{ NODEJS_VERSION }}.x {{ ansible_distribution_release }} main"
-    state: present
-    update_cache: yes
-
-- name: Install the nodejs
-  become: yes
-  apt:
-    name: nodejs
-    state: present
-
-- name: "install pm2"
-  become: yes
+- name: "Install PM2 Globally"
   npm:
     name: pm2
     global: yes
+    state: latest
     production: yes
-    state: present
