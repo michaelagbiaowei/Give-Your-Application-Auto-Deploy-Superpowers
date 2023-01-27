@@ -528,6 +528,7 @@ jobs:
             export STACKS=($(aws cloudformation list-stacks \
                 --query "StackSummaries[*].StackName" \
                 --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
+                
             echo Stack names: "${STACKS[@]}"
 
             export OldWorkflowID=$(curl --insecure https://kvdb.io/${KVDB_BUCKET}/old_workflow_id)
@@ -539,6 +540,10 @@ jobs:
               aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
             fi
+
+      - destroy-environment
+      - revert-migrations
+      - notify_on_failure
 
   notify_on_success:
     docker:
@@ -552,56 +557,56 @@ jobs:
 workflows:
   udapeople_app_workflow:
     jobs:
-      - build-frontend
-        # filters:
-        #   branches:
-        #     only: [Cloud-DevOps]
+      # - build-frontend
+      #   # filters:
+      #   #   branches:
+      #   #     only: [Cloud-DevOps]
 
-      - build-backend
-        # filters:
-        #   branches:
-        #     only: [Cloud-DevOps]
+      # - build-backend
+      #   # filters:
+      #   #   branches:
+      #   #     only: [Cloud-DevOps]
 
-      - test-frontend:
-          requires: [build-frontend]
-          # filters:
-          #   branches:
-          #     only: [Cloud-DevOps]
+      # - test-frontend:
+      #     requires: [build-frontend]
+      #     # filters:
+      #     #   branches:
+      #     #     only: [Cloud-DevOps]
 
-      - test-backend:
-          requires: [build-backend]
-          # filters:
-          #   branches:
-          #     only: [Cloud-DevOps]
+      # - test-backend:
+      #     requires: [build-backend]
+      #     # filters:
+      #     #   branches:
+      #     #     only: [Cloud-DevOps]
 
-      - scan-backend:
-          requires: [build-backend]
-          filters:
-            branches:
-              only: [Cloud-DevOps]
+      # - scan-backend:
+      #     requires: [build-backend]
+      #     filters:
+      #       branches:
+      #         only: [Cloud-DevOps]
 
-      - scan-frontend:
-          requires: [build-frontend]
-          # filters:
-          #   branches:
-          #     only: [Cloud-DevOps]
+      # - scan-frontend:
+      #     requires: [build-frontend]
+      #     # filters:
+      #     #   branches:
+      #     #     only: [Cloud-DevOps]
 
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
-      - deploy-backend:
-          requires: [run-migrations, deploy-frontend]
-      - smoke-test:
-          requires: [deploy-backend, deploy-frontend]
-      - cloudfront-update:
-          requires: [smoke-test]
-      - cleanup:
-          requires: [cloudfront-update]
-      - notify_on_success:
-          requires:
-            - cleanup
+      # - deploy-infrastructure:
+      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      # - configure-infrastructure:
+      #     requires: [deploy-infrastructure]
+      # - run-migrations:
+      #     requires: [configure-infrastructure]
+      # - deploy-frontend:
+      #     requires: [run-migrations]
+      # - deploy-backend:
+      #     requires: [run-migrations, deploy-frontend]
+      # - smoke-test:
+      #     requires: [deploy-backend, deploy-frontend]
+      # - cloudfront-update:
+      #     requires: [smoke-test]
+      # - cleanup:
+      #     requires: [cloudfront-update]
+      # - notify_on_success:
+      #     requires:
+      #       - cleanup

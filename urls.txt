@@ -4,6 +4,4 @@ GITHUB LINK
 https://github.com/michaelagbiaowei/Give-Your-Application-Auto-Deploy-Superpowers
 
 FRONT-END S3 BUCKECT
-https://udapeople-6a5db75.s3.amazonaws.com/index.html
-
-
+https://udapeople-49ee315.s3.amazonaws.com/index.html
