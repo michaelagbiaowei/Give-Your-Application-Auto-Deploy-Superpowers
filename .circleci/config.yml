@@ -70,6 +70,20 @@ commands:
           command: |
             python3 -m pip install --user ansible
 
+  install_nodejs:
+    description: Install Node.js 13.8.0
+    steps:
+      - run:
+          name: Install Node.js 13.8.0
+          command: |
+            # Install Node.js LTS version as our base Node.js version
+            curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+            sudo apt install -y nodejs
+
+            # Use n version manager to use Node.js v13.8.0
+            sudo npm install --global n
+            sudo n 13.8.0
+
 jobs:
   build-frontend:
     docker:
@@ -379,14 +393,11 @@ jobs:
 
   smoke-test:
     docker:
-      - image: python:3.7-alpine3.16
+      - image: cimg/base:stable
     steps:
       - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            # your code here
-            apk add --update --no-cache curl aws-cli nodejs npm
+      - install_awscli
+      - install_nodejs
 
       - run:
           name: Backend smoke test.
