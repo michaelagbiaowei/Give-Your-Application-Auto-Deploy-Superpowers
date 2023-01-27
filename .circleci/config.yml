@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  slack: circleci/slack@4.12.0
+  slack: circleci/slack@4.10.1
   aws-cli: circleci/aws-cli@3.1.4
 
 commands:
@@ -551,8 +551,8 @@ workflows:
           requires: [run-migrations]
       - deploy-backend:
           requires: [run-migrations, deploy-frontend]
-      # - smoke-test:
-      #     requires: [deploy-backend, deploy-frontend]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
       - cloudfront-update:
           requires: [deploy-backend]
       - cleanup:
