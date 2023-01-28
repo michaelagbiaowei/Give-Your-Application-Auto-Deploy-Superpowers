@@ -22,7 +22,7 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            SUCCESS=$(curl --insecure  https://kvdb.io/SRokyBMyc2eTRm9t2DPp8V/migration_<< parameters.Workflow_ID >>)
+            SUCCESS=$(curl --insecure  https://kvdb.io/6TfVs2PTAU2tq3WiKRQQ63/migration_<< parameters.Workflow_ID >>)
 
             # Logic for reverting the database state
             if (( $SUCCESS == 1 ));
@@ -298,10 +298,10 @@ jobs:
             ls ~/
             if [[ 'has been executed successfully.' =~ $(grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt | uniq) ]]
             then
-                curl -k https://kvdb.io/SRokyBMyc2eTRm9t2DPp8V/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
+                curl -k https://kvdb.io/6TfVs2PTAU2tq3WiKRQQ63/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
             fi
 
-      - revert-migrations
+      # - revert-migrations
       # - remove-bucket-contents
       # - destroy-environment
       # - notify_on_failure
@@ -336,7 +336,7 @@ jobs:
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
             echo "API_URL = ${API_URL}"
-            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            echo API_URL="http://${BACKEND_IP}:3030" > frontend/.env
             cat frontend/.env
       - run:
           name: Deploy frontend objects
@@ -348,10 +348,10 @@ jobs:
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
 
-      - revert-migrations
-      - remove-bucket-contents
-      - destroy-environment
-      - notify_on_failure
+      # - revert-migrations
+      # - remove-bucket-contents
+      # - destroy-environment
+      # - notify_on_failure
 
   deploy-backend:
     docker:
@@ -422,10 +422,10 @@ jobs:
               exit 1
             fi
 
-      - revert-migrations
-      - remove-bucket-contents
-      - destroy-environment
-      - notify_on_failure
+      # - revert-migrations
+      # - remove-bucket-contents
+      # - destroy-environment
+      # - notify_on_failure
 
   cloudfront-update:
     docker:
@@ -554,10 +554,10 @@ workflows:
       #     requires: [deploy-infrastructure]
       - run-migrations
       #     requires: [configure-infrastructure]
-      # - deploy-frontend:
-      #     requires: [run-migrations]
-      - deploy-backend:
+      - deploy-frontend:
           requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations, deploy-frontend]
       # - cloudfront-update:
       #     requires: [deploy-backend]
       # - cleanup:
