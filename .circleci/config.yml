@@ -1,7 +1,7 @@
 version: 2.1
 orbs:
   slack: circleci/slack@4.10.1
-  aws-cli: circleci/aws-cli@3.1.4
+  # aws-cli: circleci/aws-cli@3.1.4
 
 commands:
   notify_on_failure:
@@ -356,10 +356,12 @@ jobs:
 
   deploy-backend:
     docker:
-      - image: python:3.7-alpine3.16
+      - image: cimg/python:3.10
     steps:
       - checkout
       - install_awscli
+      - install_nodejs
+      - install_ansible
       - add_ssh_keys:
           fingerprints: ["15:71:24:06:04:09:fb:98:a5:85:17:31:e3:40:8b:03"]
       - run:
