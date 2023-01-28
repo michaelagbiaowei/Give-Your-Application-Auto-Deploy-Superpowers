@@ -384,10 +384,10 @@ jobs:
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
 
-      - revert-migrations
-      - remove-bucket-contents
-      - destroy-environment
-      - notify_on_failure
+      # - revert-migrations
+      # - remove-bucket-contents
+      # - destroy-environment
+      # - notify_on_failure
 
   smoke-test:
     docker:
@@ -556,8 +556,8 @@ workflows:
       #     requires: [configure-infrastructure]
       # - deploy-frontend:
       #     requires: [run-migrations]
-      # - deploy-backend:
-      #     requires: [run-migrations, deploy-frontend]
+      - deploy-backend:
+          requires: [run-migrations]
       # - cloudfront-update:
       #     requires: [deploy-backend]
       # - cleanup:
