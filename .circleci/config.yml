@@ -1,7 +1,7 @@
 version: 2.1
 orbs:
   slack: circleci/slack@4.10.1
-  # aws-cli: circleci/aws-cli@3.1.4
+  aws-cli: circleci/aws-cli@3.1.4
 
 commands:
   notify_on_failure:
@@ -22,7 +22,7 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            SUCCESS=$(curl --insecure  https://kvdb.io/MM5EZcfKpNgoTHdKERdkb4/migration_<< parameters.Workflow_ID >>)
+            SUCCESS=$(curl --insecure  https://kvdb.io/SRokyBMyc2eTRm9t2DPp8V/migration_<< parameters.Workflow_ID >>)
 
             # Logic for reverting the database state
             if (( $SUCCESS == 1 ));
@@ -265,8 +265,8 @@ jobs:
 
       - add_ssh_keys:
           fingerprints: ["15:71:24:06:04:09:fb:98:a5:85:17:31:e3:40:8b:03"]
-      # - attach_workspace:
-      #     at: ~/
+      - attach_workspace:
+          at: ~/
       - run:
           name: Configure server
           command: |
@@ -274,9 +274,9 @@ jobs:
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
 
-      # - remove-bucket-contents
-      # - destroy-environment
-      # - notify_on_failure
+      - remove-bucket-contents
+      - destroy-environment
+      - notify_on_failure
 
   run-migrations:
     docker:
@@ -298,13 +298,13 @@ jobs:
             ls ~/
             if [[ 'has been executed successfully.' =~ $(grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt | uniq) ]]
             then
-                curl -k https://kvdb.io/MM5EZcfKpNgoTHdKERdkb4/migration_b6dd7d7 -d '1'
+                curl -k https://kvdb.io/SRokyBMyc2eTRm9t2DPp8V/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
             fi
 
-      # - revert-migrations
-      # - remove-bucket-contents
-      # - destroy-environment
-      # - notify_on_failure
+      - revert-migrations
+      - remove-bucket-contents
+      - destroy-environment
+      - notify_on_failure
 
   deploy-frontend:
     docker:
@@ -322,22 +322,21 @@ jobs:
           name: Install npm
           command: |
             # your code here
-      # - attach_workspace:
-      #     at: ~/
-
+      - attach_workspace:
+          at: ~/
       - run:
           name: Get backend url
           command: |
             # your code here
             export BACKEND_IP=$(aws ec2 describe-instances \
-            --filters "Name=tag:Name,Values=backend-b6dd7d7" \
+            --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --query "Reservations[*].Instances[*].PublicIpAddress" \
             --output text)
 
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
             echo "API_URL = ${API_URL}"
-            echo API_URL="http://${BACKEND_IP}:3030" > frontend/.env
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env
       - run:
           name: Deploy frontend objects
@@ -346,39 +345,29 @@ jobs:
             cd frontend
             npm install
             npm run build
-            tar -czvf artifact-"b6dd7d7".tar.gz dist
-            aws s3 cp dist s3://udapeople-b6dd7d7 --recursive
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
 
-      # - revert-migrations
-      # - remove-bucket-contents
-      # - destroy-environment
-      # - notify_on_failure
+      - revert-migrations
+      - remove-bucket-contents
+      - destroy-environment
+      - notify_on_failure
 
   deploy-backend:
     docker:
-      - image: cimg/python:3.10
+      - image: python:3.7-alpine3.16
     steps:
       - checkout
-      - install_awscli
-      - install_nodejs
-      - install_ansible
       - add_ssh_keys:
           fingerprints: ["15:71:24:06:04:09:fb:98:a5:85:17:31:e3:40:8b:03"]
-
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update --no-cache tar gzip nodejs npm aws-cli ansible
       - restore_cache:
           keys: [backend-build]
-      # - attach_workspace:
-      #     at: ~/
-
-      - run:
-          name: Add back-end ip to ansible inventory
-          command: |
-            aws ec2 describe-instances \
-            --filters "Name=tag:Name,Values=backend-b6dd7d7" \
-            --query "Reservations[*].Instances[*].PublicIpAddress" \
-            --output text >> .circleci/ansible/inventory.txt
-
-            cat .circleci/ansible/inventory.txt
+      - attach_workspace:
+          at: ~/
       - run:
           name: Deploy backend
           command: |
@@ -395,10 +384,10 @@ jobs:
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
 
-      # - revert-migrations
-      # - remove-bucket-contents
-      # - destroy-environment
-      # - notify_on_failure
+      - revert-migrations
+      - remove-bucket-contents
+      - destroy-environment
+      - notify_on_failure
 
   smoke-test:
     docker:
@@ -413,7 +402,7 @@ jobs:
           command: |
             sudo apt install curl -y
             BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
-              --filters "Name=tag:Name,Values=backend-b6dd7d7" \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text)
 
@@ -424,7 +413,7 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
-            FRONTEND_WEBSITE=http://udapeople-b6dd7d7.s3-website.${AWS_DEFAULT_REGION}.amazonaws.com
+            FRONTEND_WEBSITE=http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.${AWS_DEFAULT_REGION}.amazonaws.com
             if curl -s $FRONTEND_WEBSITE -v | grep "Welcome"
             then
               # This is the intentional error, if "Welcome" is indeed in the response this step will exit with exit code 1
@@ -433,10 +422,10 @@ jobs:
               exit 1
             fi
 
-      # - revert-migrations
-      # - remove-bucket-contents
-      # - destroy-environment
-      # - notify_on_failure
+      - revert-migrations
+      - remove-bucket-contents
+      - destroy-environment
+      - notify_on_failure
 
   cloudfront-update:
     docker:
@@ -563,18 +552,18 @@ workflows:
       #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       # - configure-infrastructure:
       #     requires: [deploy-infrastructure]
-      # - run-migrations
-      # #     requires: [configure-infrastructure]
+      # - run-migrations:
+      #     requires: [configure-infrastructure]
       # - deploy-frontend:
       #     requires: [run-migrations]
-      - deploy-backend
-        # requires: [run-migrations, deploy-frontend]
+      # - deploy-backend:
+      #     requires: [run-migrations, deploy-frontend]
       # - cloudfront-update:
       #     requires: [deploy-backend]
       # - cleanup:
       #     requires: [cloudfront-update]
-      - smoke-test:
-          requires: [deploy-backend]
+      # - smoke-test:
+      #     requires: [cleanup]
       # - notify_on_success:
       #     requires:
       #       - smoke-test
