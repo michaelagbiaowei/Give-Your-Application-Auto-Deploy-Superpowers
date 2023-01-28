@@ -364,10 +364,7 @@ jobs:
       - install_ansible
       - add_ssh_keys:
           fingerprints: ["15:71:24:06:04:09:fb:98:a5:85:17:31:e3:40:8b:03"]
-      - run:
-          name: Install dependencies
-          command: |
-            apk add --update --no-cache tar gzip nodejs npm aws-cli ansible
+
       - restore_cache:
           keys: [backend-build]
       # - attach_workspace:
