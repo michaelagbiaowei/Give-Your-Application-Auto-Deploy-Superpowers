@@ -562,8 +562,8 @@ workflows:
       #     requires: [deploy-backend]
       # - cleanup:
       #     requires: [cloudfront-update]
-      # - smoke-test:
-      #     requires: [cleanup]
+      - smoke-test:
+          requires: [deploy-backend]
       # - notify_on_success:
       #     requires:
       #       - smoke-test
