@@ -265,8 +265,8 @@ jobs:
 
       - add_ssh_keys:
           fingerprints: ["15:71:24:06:04:09:fb:98:a5:85:17:31:e3:40:8b:03"]
-      - attach_workspace:
-          at: ~/
+      # - attach_workspace:
+      #     at: ~/
       - run:
           name: Configure server
           command: |
@@ -322,18 +322,8 @@ jobs:
           name: Install npm
           command: |
             # your code here
-      - attach_workspace:
-          at: ~/
-
-      - run:
-          name: Add back-end ip to ansible inventory
-          command: |
-            aws ec2 describe-instances \
-            --filters "Name=tag:Name,Values=backend-b6dd7d7" \
-            --query "Reservations[*].Instances[*].PublicIpAddress" \
-            --output text >> .circleci/ansible/inventory.txt
-
-            cat .circleci/ansible/inventory.txt
+      # - attach_workspace:
+      #     at: ~/
 
       - run:
           name: Get backend url
@@ -369,6 +359,7 @@ jobs:
       - image: python:3.7-alpine3.16
     steps:
       - checkout
+      - install_awscli
       - add_ssh_keys:
           fingerprints: ["15:71:24:06:04:09:fb:98:a5:85:17:31:e3:40:8b:03"]
       - run:
@@ -377,8 +368,18 @@ jobs:
             apk add --update --no-cache tar gzip nodejs npm aws-cli ansible
       - restore_cache:
           keys: [backend-build]
-      - attach_workspace:
-          at: ~/
+      # - attach_workspace:
+      #     at: ~/
+
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+            aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=backend-b6dd7d7" \
+            --query "Reservations[*].Instances[*].PublicIpAddress" \
+            --output text >> .circleci/ansible/inventory.txt
+
+            cat .circleci/ansible/inventory.txt
       - run:
           name: Deploy backend
           command: |
@@ -563,12 +564,12 @@ workflows:
       #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       # - configure-infrastructure:
       #     requires: [deploy-infrastructure]
-      - run-migrations
-      #     requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
-      - deploy-backend:
-          requires: [run-migrations, deploy-frontend]
+      # - run-migrations
+      # #     requires: [configure-infrastructure]
+      # - deploy-frontend:
+      #     requires: [run-migrations]
+      - deploy-backend
+        # requires: [run-migrations, deploy-frontend]
       # - cloudfront-update:
       #     requires: [deploy-backend]
       # - cleanup:
