@@ -324,6 +324,17 @@ jobs:
             # your code here
       - attach_workspace:
           at: ~/
+
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+            aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=backend-b6dd7d7" \
+            --query "Reservations[*].Instances[*].PublicIpAddress" \
+            --output text >> .circleci/ansible/inventory.txt
+
+            cat .circleci/ansible/inventory.txt
+
       - run:
           name: Get backend url
           command: |
