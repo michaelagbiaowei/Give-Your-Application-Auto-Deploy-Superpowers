@@ -4,10 +4,10 @@ GITHUB LINK [URL1]
 https://github.com/michaelagbiaowei/Give-Your-Application-Auto-Deploy-Superpowers
 
 FRONT-END S3 BUCKECT [URL02]
-https://udapeople-49ee315.s3.amazonaws.com/index.html
+http://udapeople-b6dd7d7.s3.amazonaws.com/index.html
 
 CLOUDFRONT DISTRIBUTION
-https://d23xirr66z0tn4.cloudfront.net
+http://d23xirr66z0tn4.cloudfront.net
 
 BACKEND APPLICATION URL
 ec2-52-3-76-254.compute-1.amazonaws.com
