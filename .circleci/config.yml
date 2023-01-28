@@ -501,35 +501,35 @@ jobs:
             echo Stack names: "${STACKS[@]}"
             echo $OldWorkflowID ${CIRCLE_WORKFLOW_ID:0:7}
 
-            # for (( index=0; index<${#STACKS[@]}; index+=2 )) 
-            # do
-            #   if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${STACKS[index]##*-}" ]]
-            #   then
-            #       # your code here
-            #       echo "----------Deletes cofirmed------------"
-            #       aws s3 rm "s3://udapeople-${STACKS[index]##*-}" --recursive
-            #       aws cloudformation delete-stack --stack-name "${STACKS[index]}"
-            #       aws cloudformation delete-stack --stack-name "${STACKS[((++index))]}"
-            #   else
-            #       echo "----------Cannot cleanup------------"
-            #   fi
-            # done
-            for i in "${STACKSID[@]}"
+            for (( index=0; index<${#STACKS[@]}; index+=2 )) 
             do
-              if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "$i" ]]
+              if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${STACKS[index]##*-}" ]]
               then
-                  echo "----------------Delete confirmed-----------"
-                  aws s3 rm "s3://udapeople-$i" --recursive
-                  aws cloudformation delete-stack --stack-name "udapeople-frontend-$i"
-                  aws cloudformation delete-stack --stack-name "udapeople-backend-$i"
+                  # your code here
+                  echo "----------Deletes cofirmed------------"
+                  aws s3 rm "s3://udapeople-${STACKS[index]##*-}" --recursive
+                  aws cloudformation delete-stack --stack-name "${STACKS[index]}"
+                  aws cloudformation delete-stack --stack-name "${STACKS[((++index))]}"
               else
-                  echo  "----------------Cannot cleanup------------"
+                  echo "----------Cannot cleanup------------"
               fi
             done
+            # for i in "${STACKSID[@]}"
+            # do
+            #   if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "$i" ]]
+            #   then
+            #       echo "----------------Delete confirmed-----------"
+            #       aws s3 rm "s3://udapeople-$i" --recursive
+            #       aws cloudformation delete-stack --stack-name "udapeople-frontend-$i"
+            #       aws cloudformation delete-stack --stack-name "udapeople-backend-$i"
+            #   else
+            #       echo  "----------------Cannot cleanup------------"
+            #   fi
+            # done
 
-      - revert-migrations
-      - remove-bucket-contents
-      - destroy-environment
+      # - revert-migrations
+      # - remove-bucket-contents
+      # - destroy-environment
       - notify_on_failure
 
   notify_on_success:
